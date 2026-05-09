@@ -1,4 +1,4 @@
-package com.urlshortener.url_shortener_api.controller;
+package com.urlshortener.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

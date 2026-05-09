@@ -1,6 +1,4 @@
-package com.urlshortener.url_shortener_api.dto.response;
-
-import com.urlshortener.url_shortener_api.dto.request.ShortenRequest;
+package com.urlshortener.dto.response;
 
 public class ShortenResponse {
 
@@ -16,19 +14,19 @@ public class ShortenResponse {
         this.expiresAt = expiresAt;
     }
 
-    private String getShortUrl() {
+    public String getShortUrl() {
         return shortUrl;
     }
 
-    private void setShortUrl(String shortUrl) {
+    public void setShortUrl(String shortUrl) {
         this.shortUrl = shortUrl;
     }
 
-    private String getOriginalUrl() {
+    public String getOriginalUrl() {
         return originalUrl;
     }
 
-    private void setOriginalUrl(String originalUrl) {
+    public void setOriginalUrl(String originalUrl) {
         this.originalUrl = originalUrl;
     }
 

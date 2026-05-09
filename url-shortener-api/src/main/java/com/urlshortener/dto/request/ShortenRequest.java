@@ -1,4 +1,4 @@
-package com.urlshortener.url_shortener_api.dto.request;
+package com.urlshortener.dto.request;
 
 public class ShortenRequest {
 
