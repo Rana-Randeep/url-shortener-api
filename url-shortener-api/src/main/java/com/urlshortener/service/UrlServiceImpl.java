@@ -3,6 +3,8 @@ package com.urlshortener.service;
 import com.urlshortener.dto.request.ShortenRequest;
 import com.urlshortener.dto.response.ShortenResponse;
 import com.urlshortener.entity.Url;
+import com.urlshortener.exception.UrlExpiredException;
+import com.urlshortener.exception.UrlNotFoundException;
 import com.urlshortener.repository.UrlRepository;
 import com.urlshortener.util.Base62Encoder;
 import org.springframework.stereotype.Service;
@@ -47,11 +49,11 @@ public class UrlServiceImpl implements UrlService {
     }
 
     public String getOriginalUrl(String shortCode) {
-        Url url = urlRepository.findByShortCode(shortCode).orElseThrow(() -> new RuntimeException("Short Url Not Found"));
+        Url url = urlRepository.findByShortCode(shortCode).orElseThrow(() -> new UrlNotFoundException(shortCode));
 
         //Check Expiry
         if (url.getExpiresAt() != null && LocalDateTime.now().isAfter(url.getExpiresAt())) {
-            throw new RuntimeException("Short URL has expired");
+            throw new UrlExpiredException(shortCode);
         }
 
         return url.getOriginalUrl();
