@@ -1,7 +1,6 @@
-package com.urlshortener.url_shortener_api.model;
+package com.urlshortener.entity;
 
 import jakarta.persistence.*;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 
