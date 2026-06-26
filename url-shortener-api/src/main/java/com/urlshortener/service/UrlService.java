@@ -5,9 +5,7 @@ import com.urlshortener.dto.response.ShortenResponse;
 
 public interface UrlService {
 
-    ShortenResponse shortenUrl(ShortenRequest request);
+    ShortenResponse shortenUrl(ShortenRequest request, String email);
 
-    String getOriginalUrl(String shortCode0);
-
-
+    String getOriginalUrl(String shortCode);
 }
