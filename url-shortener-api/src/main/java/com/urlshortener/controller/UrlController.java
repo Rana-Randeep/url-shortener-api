@@ -3,6 +3,7 @@ package com.urlshortener.controller;
 import com.urlshortener.dto.request.ClickEventMessage;
 import com.urlshortener.dto.request.ShortenRequest;
 import com.urlshortener.dto.response.ShortenResponse;
+import com.urlshortener.dto.response.UrlResponse;
 import com.urlshortener.service.ClickEventProducer;
 import com.urlshortener.service.UrlService;
 import com.urlshortener.util.JwtUtil;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -52,5 +54,19 @@ public class UrlController {
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(originalUrl))
                 .build();
+    }
+
+    @GetMapping("/my-urls")
+    public ResponseEntity<List<UrlResponse>> getMyUrls() {
+        String email = jwtUtil.getCurrentUserEmail();
+        List<UrlResponse> urls = urlService.getMyUrls(email);
+        return ResponseEntity.ok(urls);
+    }
+
+    @DeleteMapping("/urls/{shortCode}")
+    public ResponseEntity<Void> deleteUrl(@PathVariable String shortCode) {
+        String email = jwtUtil.getCurrentUserEmail();
+        urlService.deleteUrl(shortCode, email);
+        return ResponseEntity.noContent().build();
     }
 }

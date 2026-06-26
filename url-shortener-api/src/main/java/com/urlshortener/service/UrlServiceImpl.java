@@ -2,6 +2,7 @@ package com.urlshortener.service;
 
 import com.urlshortener.dto.request.ShortenRequest;
 import com.urlshortener.dto.response.ShortenResponse;
+import com.urlshortener.dto.response.UrlResponse;
 import com.urlshortener.exception.UrlExpiredException;
 import com.urlshortener.exception.UrlNotFoundException;
 import com.urlshortener.model.Url;
@@ -13,6 +14,8 @@ import com.urlshortener.util.Base62Encoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UrlServiceImpl implements UrlService {
@@ -68,5 +71,39 @@ public class UrlServiceImpl implements UrlService {
         }
 
         return url.getOriginalUrl();
+    }
+
+    public List<UrlResponse> getMyUrls(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Url> urls = urlRepository.findByUser(user);
+
+        return urls.stream()
+                .map(url -> new UrlResponse(
+                        url.getShortCode(),
+                        url.getOriginalUrl(),
+                        "http://localhost:8080/api/" + url.getShortCode(),
+                        url.getCreatedAt().toString(),
+                        url.getExpiresAt() != null ? url.getExpiresAt().toString() : null
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void deleteUrl(String shortCode, String email) {
+
+        Url url = urlRepository.findByShortCode(shortCode)
+                .orElseThrow(() -> new UrlNotFoundException(shortCode));
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!url.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You are not authorized to delete this URL");
+        }
+
+        urlRepository.delete(url);
     }
 }
