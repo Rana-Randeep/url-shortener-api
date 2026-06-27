@@ -7,6 +7,9 @@ import com.urlshortener.dto.response.UrlResponse;
 import com.urlshortener.service.ClickEventProducer;
 import com.urlshortener.service.UrlService;
 import com.urlshortener.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api")
+@Tag(name = "URL Shortener", description = "Shorten, redirect and manage URLs")
 public class UrlController {
 
     private final UrlService urlService;
@@ -33,6 +37,8 @@ public class UrlController {
         this.jwtUtil = jwtUtil;
     }
 
+    @Operation(summary = "Shorten a URL and generate QR code",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
     @PostMapping("/shorten")
     public ResponseEntity<ShortenResponse> shortenUrl(
             @Valid @RequestBody ShortenRequest request) {
@@ -41,6 +47,7 @@ public class UrlController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "Redirect to original URL using short code")
     @GetMapping("/{shortCode}")
     public ResponseEntity<Void> redirect(@PathVariable String shortCode,
                                          HttpServletRequest request) {
@@ -56,6 +63,8 @@ public class UrlController {
                 .build();
     }
 
+    @Operation(summary = "Get all URLs of logged in user",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
     @GetMapping("/my-urls")
     public ResponseEntity<List<UrlResponse>> getMyUrls() {
         String email = jwtUtil.getCurrentUserEmail();
@@ -63,6 +72,8 @@ public class UrlController {
         return ResponseEntity.ok(urls);
     }
 
+    @Operation(summary = "Delete a URL by short code",
+            security = @SecurityRequirement(name = "Bearer Authentication"))
     @DeleteMapping("/urls/{shortCode}")
     public ResponseEntity<Void> deleteUrl(@PathVariable String shortCode) {
         String email = jwtUtil.getCurrentUserEmail();

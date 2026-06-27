@@ -28,6 +28,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/health").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/swagger-ui.html").permitAll()
+                        .requestMatchers("/api-docs/**").permitAll()
+                        .requestMatchers("/api-docs").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.GET,
                                 "/api/{shortCode}").permitAll()
                         .anyRequest().authenticated()
