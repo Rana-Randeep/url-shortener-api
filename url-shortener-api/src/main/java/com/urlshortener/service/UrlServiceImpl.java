@@ -11,6 +11,7 @@ import com.urlshortener.repository.UrlRepository;
 import com.urlshortener.repository.UserRepository;
 import com.urlshortener.service.UrlService;
 import com.urlshortener.util.Base62Encoder;
+import com.urlshortener.util.QrCodeGenerator;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,13 +24,15 @@ public class UrlServiceImpl implements UrlService {
     private final UrlRepository urlRepository;
     private final UserRepository userRepository;
     private final Base62Encoder base62Encoder;
+    private final QrCodeGenerator qrCodeGenerator;
+    private final S3Service s3Service;
 
-    public UrlServiceImpl(UrlRepository urlRepository,
-                          UserRepository userRepository,
-                          Base62Encoder base62Encoder) {
+    public UrlServiceImpl(UrlRepository urlRepository, UserRepository userRepository, Base62Encoder base62Encoder, QrCodeGenerator qrCodeGenerator, S3Service s3Service) {
         this.urlRepository = urlRepository;
         this.userRepository = userRepository;
         this.base62Encoder = base62Encoder;
+        this.qrCodeGenerator = qrCodeGenerator;
+        this.s3Service = s3Service;
     }
 
     @Override
@@ -56,8 +59,18 @@ public class UrlServiceImpl implements UrlService {
         urlRepository.save(url);
 
         String shortUrl = "http://localhost:8080/api/" + shortCode;
+
+        // Generate QR and upload to S3
+        String qrCodeUrl = null;
+        try {
+            byte[] qrCode = qrCodeGenerator.generateQrCode(shortUrl);
+            qrCodeUrl = s3Service.uploadQrCode(shortCode, qrCode);
+        } catch (Exception e) {
+            System.out.println("QR generation failed: " + e.getMessage());
+        }
+
         return new ShortenResponse(shortUrl, request.getOriginalUrl(),
-                request.getExpiresAt());
+                request.getExpiresAt(), qrCodeUrl);
     }
 
     @Override
